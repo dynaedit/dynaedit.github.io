@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="TODO: Add project description">
+  <meta name="keywords" content="video editing, inversion-free, TODO">
+  <title>Versatile Editing of Video Content, Actions, and Dynamics without Training</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro|Caveat:wght@400;700" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+
+    :root {
+      --noteworthy-stack: 'Noteworthy', 'Caveat', 'Segoe Print', 'Bradley Hand', 'Comic Neue', cursive;
+    }
+
+body {
+  font-family: 'Google Sans', 'Noto Sans', sans-serif;
+}
+
+.publication-title,
+.publication-authors,
+.publication-venue,
+.results-section .title {
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+}
+
+    .noteworthy-text,
+    .prompt-label {
+      font-family: var(--noteworthy-stack);
+    }
+
+    .carousel-counter,
+    .results-note {
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+    }
+
+.publication-links {
+  margin-top: 1rem;
+}
+
+.results-note {
+  color: #4a4a4a;
+  margin-top: 0.5rem;
+}
+
+.section-title {
+  border-bottom: 1px solid #dbdbdb;
+  padding-bottom: 0.5rem;
+}
+
+.result-card {
+  margin-bottom: 1.5rem;
+}
+
+.stacked-pair {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.video-wrap {
+  background: #111;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.video-wrap video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.prompt-label {
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.prompt-box {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 0.7rem;
+  background: #fafafa;
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.prompt-box hr {
+  border: 0;
+  border-top: 1px solid #e8e8e8;
+  margin: 0.5rem 0;
+}
+
+.missing-video {
+  padding: 2rem 1rem;
+  color: #888;
+  text-align: center;
+  background: #f5f5f5;
+}
+
+.carousel-shell {
+  border: 1px solid #e7e7e7;
+  border-radius: 14px;
+  padding: 1.2rem;
+  background: linear-gradient(180deg, #fcfcff 0%, #f8fbff 100%);
+}
+
+.carousel-header {
+  margin-bottom: 0.8rem;
+}
+
+.carousel-header .title {
+  font-size: 2.4rem;
+  font-family: 'Calibri Light', 'Calibri', 'Segoe UI', sans-serif;
+  font-weight: 300;
+}
+
+.carousel-panel .title.is-6 {
+  font-size: 1.9rem;
+}
+
+.carousel-slides {
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 1000ms ease;
+  width: 100%;
+}
+
+.carousel-slide {
+  position: relative;
+  flex: 0 0 100%;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.carousel-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.4rem;
+  align-items: start;
+}
+
+.carousel-panel {
+  min-width: 0;
+}
+
+.carousel-panel .video-wrap {
+  aspect-ratio: 832 / 480;
+  --carousel-video-height: clamp(220px, 27vw, 360px);
+  height: var(--carousel-video-height);
+  width: min(100%, calc(var(--carousel-video-height) * 832 / 480));
+  margin: 0 auto;
+}
+
+.carousel-panel .video-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-controls {
+  margin-top: 0.9rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.carousel-delta {
+  margin-top: 0.55rem;
+  border: 1px solid #dbe6ff;
+  border-radius: 10px;
+  background: #f5f8ff;
+  color: #1e3a78;
+  padding: 0.55rem 0.7rem;
+  text-align: center;
+  line-height: 1.3;
+  font-size: 1.65rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.content.has-text-justified p {
+  font-size: 1.28rem;
+  line-height: 1.55;
+}
+
+.comparison-section-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.comparison-grid-2x3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.comparison-card {
+  background: #fff;
+  border: 1px solid #e9e9e9;
+  border-radius: 10px;
+  padding: 0.55rem;
+}
+
+.comparison-card video {
+  width: 100%;
+  aspect-ratio: 832 / 480;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  background: #111;
+}
+
+.comparison-delta {
+  margin-top: 0.8rem;
+  font-size: 1.3rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 960px) {
+  .carousel-grid {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .carousel-panel .video-wrap {
+    aspect-ratio: 832 / 480;
+    --carousel-video-height: clamp(190px, 45vw, 300px);
+    height: var(--carousel-video-height);
+    width: min(100%, calc(var(--carousel-video-height) * 832 / 480));
+  }
+
+  .comparison-grid-2x3 {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">Versatile Editing of Video Content, Actions, and Dynamics without Training</h1>
+
+            <div class="is-size-5 publication-authors">
+              Vladimir Kulikov, Roni Paiss, Andrey Voynov, Inbar Mosseri, Tali Dekel, Tomer Michaeli
+            </div>
+
+            <div class="is-size-5 publication-venue">
+              In submission
+            </div>
+
+            <div class="column has-text-centered publication-links">
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-book-open"></i></span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Code</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-globe"></i></span>
+                  <span>Project</span>
+                </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+<section class="section">
+  <div class="container is-max-widescreen">
+    <div class="carousel-shell">
+      <div class="carousel-header">
+        <h2 class="title is-3">DynaEdit Results</h2>
+      </div>
+
+      <div class="carousel-slides">
+        <div class="carousel-track" id="carousel-track">
+          
+<div class="carousel-slide sync-pair" data-slide-index="0">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_000.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_000.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">The astronaut on the right approaches a flag spelling MARS and picks it up mid walk. The other astronaut is unaware of the flag.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="1">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_001.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_001.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A woman holding a kite at the beach with very strong wind, colorful umbrella in the sand. The camera is slowly moving to the right.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="2">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_004.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_004.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A large bucket of yellow paint is in front of the train, the train smashes the bucket and the paint is smeared all over the train.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="3">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_006.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_006.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A bobblehead is visible on the dashoard. It is tilting as the car is turning.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="4">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_008.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_008.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A side-on tracking shot follows a woman riding a dark horse as it canters across the sandy paddock.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="5">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_009.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_009.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A big mirror is in the middle of the forest.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="6">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_016.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_016.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A cat is jumping on the couch, causing mayhem.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="7">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_061.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_061.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A helicopter is in the sky, shining a bright light in the middle of the town, lighting up the rooftops.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="8">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_066.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_066.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A giant meteor is in the sky, crashing down into the lagoon, creating a huge splash and big waves.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="9">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_018.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_018.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">The strawberry is sinking very fast. The feather stays on the surface.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="10">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_020.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_020.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">The man has a transparent waterbag on his back, spewing out water as he runs.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="11">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_022.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_022.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A static camera shot of yellow tulips and a dandelion swaying in the wind. Close-up shot. The strong wind causes the dandelion seeds to detach and fly away.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="12">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_024.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_024.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A giant snail is crossing the bridge from left to right, leaving a trail of ooze.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="13">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_028.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_028.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A person is squeezing a lemon into the green liquid. Suddenly, a chemical reaction occurs and the green liquid bursts out of the pitcher.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="14">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_031.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_031.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">An orange stand in the supermarket with a red apple on top. Suddenly, a person grabs the red apple.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="15">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_070.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_070.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A woman in a pink headscarf sitting in front of a fluffy gray cat. The woman is petting the cat.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="16">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_032.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_032.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">Suddenly, the leftmost swan dives underwater. The others remain calm.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="17">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_034.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_034.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">Midway through, the horse approaches a low equestrian jump and leaps gracefully over it.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="18">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_035.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_035.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">Suddenly, the horse closest to the camera leaves the pasture, exiting the frame.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="19">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_036.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_036.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">The pizza catches fire and starts to burn, causing a flame to burst out of the oven.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="20">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_037.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_037.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A person uses a pizza shovel to pull out the pizza, and it starts to slide out of the oven.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="21">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_064.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_064.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A cat under the couch, playing with a burning marshmallow attached to a stick. Suddenly, the cat gets scared and runs away.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="22">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_071.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_071.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">The white ball enters the pocket.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="23">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_047.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_047.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A woman sitting at the beach during night with very strong wind, a campfire is burning in front of her.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="24">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_048.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_048.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A static shot of a  magmatic waterfall. The lava at the brink of the magmatic waterfall is a striking orange color, contrasting with the frothy white mist and spray rising from the plunge pool below. The magma in the foreground, before it drops, is a dark, agitated orange, showing the powerful current.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="25">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_049.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_049.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">A steam train is running through a forest at nighttime. Suddenly, lightning strikes the train, setting it on fire, and making it slow down.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="26">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_050.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_050.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">Medieval Manga style.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="27">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_056.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_056.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">Suddenly, a large earthquake strikes, causing the train to crash and the bridge to collapse.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="28">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_057.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_057.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">Suddenly, a heavy sandstorm begins, causing the man to grab his hat.</div>
+</div>
+
+<div class="carousel-slide sync-pair" data-slide-index="29">
+  <div class="carousel-grid">
+    <div class="carousel-panel">
+      <h4 class="title is-6">Input Video</h4>
+      <div class="video-wrap">
+        <video data-role="src" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_062.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+
+    <div class="carousel-panel">
+      <h4 class="title is-6">Edited Video</h4>
+      <div class="video-wrap">
+        <video data-role="tar" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_062.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-delta noteworthy-text">Fireworks are exploding above the river, reflecting off the water and across the river.</div>
+</div>
+
+        </div>
+      </div>
+
+      <div class="carousel-controls">
+        <button id="carousel-prev" class="button is-dark is-rounded" type="button">Previous</button>
+        <button id="carousel-next" class="button is-dark is-rounded" type="button">Next</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>Controlled video generation has seen drastic improvements in recent years. However, editing actions and dynamic events, or inserting contents that should affect the behaviors of other objects in real-world videos, remains a major challenge. Existing trained models struggle with complex edits, likely due to the difficulty of collecting relevant training data. Similarly, existing training-free methods are inherently restricted to structure- and motion-preserving edits and do not support modification of motion or interactions. Here, we introduce DynaEdit, a training-free editing method that unlocks versatile video editing capabilities with pretrained text-to-video flow models. Our method relies on the recently introduced inversion-free approach, which does not intervene in the model internals, and is thus model-agnostic. We show that naively attempting to adapt this approach to general unconstrained editing results in  severe low-frequency misalignment and high-frequency jitter. We explain the sources for these phenomena and introduce novel mechanisms for overcoming them. Through extensive experiments, we show that DynaEdit achieves state-of-the-art results on complex text-based video editing tasks, including modifying actions, inserting objects that interact with the scene, and introducing global effects.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+<section class="section">
+  <div class="container is-max-widescreen">
+    <h2 class="title is-3">Comparisons to Competing Methods</h2>
+    
+<h3 class="title is-4 section-title">Insertion</h3>
+<div class="comparison-section-list">
+  
+<div class="box comparison-example comparison-row">
+  <div class="comparison-grid-2x3">
+    <div class="comparison-card sync-compare">
+      <h4 class="title is-6">Source</h4>
+      <video data-role="src" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_004.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+    </div>
+    <div class="comparison-card sync-compare">
+      <h4 class="title is-6">Ours</h4>
+      <video data-role="ours" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_004.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+    </div>
+    
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">Aleph</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_runway/4_out.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">FlowAlign</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_flowalign/out_004.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">Editing-by-Inversion</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_ode_inv/out_004.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">FlowEdit</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_flowedit/out_004.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+  </div>
+  <div class="prompt-box noteworthy-text comparison-delta">A large bucket of yellow paint is in front of the train, the train smashes the bucket and the paint is smeared all over the train.</div>
+</div>
+
+</div>
+
+<h3 class="title is-4 section-title">Swap</h3>
+<div class="comparison-section-list">
+  
+<div class="box comparison-example comparison-row">
+  <div class="comparison-grid-2x3">
+    <div class="comparison-card sync-compare">
+      <h4 class="title is-6">Source</h4>
+      <video data-role="src" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_018.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+    </div>
+    <div class="comparison-card sync-compare">
+      <h4 class="title is-6">Ours</h4>
+      <video data-role="ours" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_018.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+    </div>
+    
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">Aleph</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_runway/18_out.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">FlowAlign</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_flowalign/out_018.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">Editing-by-Inversion</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_ode_inv/out_018.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">FlowEdit</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_flowedit/out_018.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+  </div>
+  <div class="prompt-box noteworthy-text comparison-delta">The strawberry is sinking very fast. The feather stays on the surface.</div>
+</div>
+
+</div>
+
+<h3 class="title is-4 section-title">Action</h3>
+<div class="comparison-section-list">
+  
+<div class="box comparison-example comparison-row">
+  <div class="comparison-grid-2x3">
+    <div class="comparison-card sync-compare">
+      <h4 class="title is-6">Source</h4>
+      <video data-role="src" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_032.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+    </div>
+    <div class="comparison-card sync-compare">
+      <h4 class="title is-6">Ours</h4>
+      <video data-role="ours" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_032.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+    </div>
+    
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">Aleph</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_runway/32_out.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">FlowAlign</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_flowalign/out_032.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">Editing-by-Inversion</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_ode_inv/out_032.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">FlowEdit</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_flowedit/out_032.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+  </div>
+  <div class="prompt-box noteworthy-text comparison-delta">Suddenly, the leftmost swan dives underwater. The others remain calm.</div>
+</div>
+
+</div>
+
+<h3 class="title is-4 section-title">Global Effects</h3>
+<div class="comparison-section-list">
+  
+<div class="box comparison-example comparison-row">
+  <div class="comparison-grid-2x3">
+    <div class="comparison-card sync-compare">
+      <h4 class="title is-6">Source</h4>
+      <video data-role="src" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/orig_vids/orig_062.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+    </div>
+    <div class="comparison-card sync-compare">
+      <h4 class="title is-6">Ours</h4>
+      <video data-role="ours" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/edit_enum/out_062.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+    </div>
+    
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">Aleph</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_runway/62_out.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">FlowAlign</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_flowalign/out_062.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">Editing-by-Inversion</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_ode_inv/out_062.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+<div class="comparison-card sync-compare">
+  <h4 class="title is-6">FlowEdit</h4>
+  <video data-role="baseline" class="comparison-video" controls preload="auto" playsinline muted><source src="source_videos_enum/results_flowedit/out_062.mp4#t=0.001" type="video/mp4">Your browser does not support the video tag.</video>
+</div>
+
+  </div>
+  <div class="prompt-box noteworthy-text comparison-delta">Fireworks are exploding above the river, reflecting off the water and across the river.</div>
+</div>
+
+</div>
+
+  </div>
+</section>
+
+
+  <script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  const playbackRate = 0.5333333333;
+  const syncThreshold = 0.15;
+
+  const applyPlaybackRate = (video) => {
+    if (!video) return;
+    if (video.playbackRate !== playbackRate) {
+      video.playbackRate = playbackRate;
+    }
+  };
+
+  const setupSyncedPair = (container) => {
+    const srcVideo = container.querySelector('video[data-role="src"]');
+    const tarVideo = container.querySelector('video[data-role="tar"]');
+    const isCarouselSlide = container.classList.contains('carousel-slide');
+    const autoplaySource = isCarouselSlide;
+    if (!srcVideo || !tarVideo) return;
+
+    let seekingSrc = false;
+
+    const ensureTarPlaying = () => {
+      if (!srcVideo.paused && tarVideo.paused) {
+        const promise = tarVideo.play();
+        if (promise !== undefined) promise.catch(() => {});
+      }
+    };
+
+    const syncTime = () => {
+      if (!seekingSrc && srcVideo.readyState >= 1 && tarVideo.readyState >= 1) {
+        const diff = srcVideo.currentTime - tarVideo.currentTime;
+        if (Math.abs(diff) > syncThreshold) tarVideo.currentTime = srcVideo.currentTime;
+      }
+    };
+
+    srcVideo.addEventListener('loadedmetadata', () => applyPlaybackRate(srcVideo));
+    tarVideo.addEventListener('loadedmetadata', () => applyPlaybackRate(tarVideo));
+
+    // Force browsers to render an initial frame before user presses play.
+    const showInitialFrame = (video) => {
+      if (!video) return;
+      if (video.currentTime <= 0.001) {
+        try {
+          video.currentTime = 0.001;
+        } catch (_err) {}
+      }
+    };
+
+    srcVideo.addEventListener('loadeddata', () => showInitialFrame(srcVideo));
+    tarVideo.addEventListener('loadeddata', () => showInitialFrame(tarVideo));
+
+    srcVideo.addEventListener('play', ensureTarPlaying);
+    srcVideo.addEventListener('pause', () => tarVideo.pause());
+    srcVideo.addEventListener('waiting', () => tarVideo.pause());
+    srcVideo.addEventListener('playing', ensureTarPlaying);
+
+    srcVideo.addEventListener('seeking', () => {
+      seekingSrc = true;
+      tarVideo.currentTime = srcVideo.currentTime;
+    });
+
+    srcVideo.addEventListener('seeked', () => {
+      seekingSrc = false;
+      if (Math.abs(srcVideo.currentTime - tarVideo.currentTime) > 0.05) tarVideo.currentTime = srcVideo.currentTime;
+      ensureTarPlaying();
+    });
+
+    srcVideo.addEventListener('timeupdate', syncTime);
+
+    srcVideo.addEventListener('ended', () => {
+      if (isCarouselSlide) {
+        srcVideo.pause();
+        tarVideo.pause();
+        container.dispatchEvent(new CustomEvent('syncpairended'));
+        return;
+      }
+
+      tarVideo.currentTime = srcVideo.currentTime;
+      srcVideo.pause();
+      tarVideo.pause();
+    });
+
+    tarVideo.addEventListener('timeupdate', () => {
+      if (!seekingSrc && !srcVideo.paused && srcVideo.readyState >= 1 && tarVideo.readyState >= 1) {
+        const diff = srcVideo.currentTime - tarVideo.currentTime;
+        if (diff < -syncThreshold) tarVideo.currentTime = srcVideo.currentTime;
+      }
+    });
+
+    applyPlaybackRate(srcVideo);
+    applyPlaybackRate(tarVideo);
+  };
+
+  document.querySelectorAll('.sync-pair').forEach((container) => setupSyncedPair(container));
+
+  const slides = Array.from(document.querySelectorAll('.carousel-slide'));
+  if (!slides.length) return;
+  const track = document.getElementById('carousel-track');
+
+  const prevBtn = document.getElementById('carousel-prev');
+  const nextBtn = document.getElementById('carousel-next');
+  let activeIndex = 0;
+
+  const showSlide = (index) => {
+    const nextIndex = (index + slides.length) % slides.length;
+    if (track) {
+      track.style.transform = `translateX(-${nextIndex * 100}%)`;
+    }
+
+    slides.forEach((slide, idx) => {
+      const srcVideo = slide.querySelector('video[data-role="src"]');
+      const tarVideo = slide.querySelector('video[data-role="tar"]');
+      if (!srcVideo || !tarVideo) return;
+      if (idx !== nextIndex) {
+        srcVideo.pause();
+        tarVideo.pause();
+        srcVideo.currentTime = 0;
+        tarVideo.currentTime = 0;
+      }
+    });
+
+    const activeSlide = slides[nextIndex];
+    const activeSource = activeSlide.querySelector('video[data-role="src"]');
+    if (activeSource) {
+      activeSource.currentTime = 0;
+      const promise = activeSource.play();
+      if (promise !== undefined) promise.catch(() => {});
+    }
+
+    activeIndex = nextIndex;
+  };
+
+  if (prevBtn) prevBtn.addEventListener('click', () => showSlide(activeIndex - 1));
+  if (nextBtn) nextBtn.addEventListener('click', () => showSlide(activeIndex + 1));
+
+  slides.forEach((slide) => {
+    slide.addEventListener('syncpairended', () => {
+      const idx = slides.indexOf(slide);
+      if (idx === activeIndex) showSlide(activeIndex + 1);
+    });
+  });
+
+  document.querySelectorAll('.comparison-row').forEach((row) => {
+    const videos = Array.from(row.querySelectorAll('video'));
+    if (!videos.length) return;
+
+    const getFollowers = (leader) => videos.filter((v) => v !== leader);
+    let seeking = false;
+    let activeLeader = null;
+
+    const onPlay = (leader) => {
+      activeLeader = leader;
+      getFollowers(leader).forEach((v) => {
+        if (v.paused) {
+          v.currentTime = leader.currentTime;
+          const p = v.play();
+          if (p) p.catch(() => {});
+        }
+      });
+    };
+
+    const onPause = (leader) => {
+      activeLeader = leader;
+      getFollowers(leader).forEach((v) => v.pause());
+    };
+
+    const onSeeking = (leader) => {
+      activeLeader = leader;
+      seeking = true;
+      getFollowers(leader).forEach((v) => {
+        v.currentTime = leader.currentTime;
+      });
+    };
+
+    const onSeeked = (leader) => {
+      seeking = false;
+      getFollowers(leader).forEach((v) => {
+        if (Math.abs(leader.currentTime - v.currentTime) > 0.05) v.currentTime = leader.currentTime;
+      });
+    };
+
+    const onTimeUpdate = (leader) => {
+      if (activeLeader !== leader) return;
+      if (!seeking && leader.readyState >= 1) {
+        getFollowers(leader).forEach((v) => {
+          if (v.readyState >= 1 && Math.abs(leader.currentTime - v.currentTime) > syncThreshold) {
+            v.currentTime = leader.currentTime;
+          }
+        });
+      }
+    };
+
+    videos.forEach((video) => {
+      video.addEventListener('play', () => onPlay(video));
+      video.addEventListener('pause', () => onPause(video));
+      video.addEventListener('seeking', () => onSeeking(video));
+      video.addEventListener('seeked', () => onSeeked(video));
+      video.addEventListener('timeupdate', () => onTimeUpdate(video));
+    });
+  });
+
+  showSlide(0);
+});
+
+  </script>
+</body>
+</html>
