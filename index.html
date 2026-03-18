@@ -1627,8 +1627,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!srcVideo || !tarVideo) return;
 
     if (isMainCarouselSlide) {
-      srcVideo.controls = true;
+      srcVideo.controls = false;
       tarVideo.controls = false;
+      srcVideo.style.pointerEvents = 'auto';
+      srcVideo.style.cursor = 'pointer';
+      srcVideo.tabIndex = 0;
       tarVideo.style.pointerEvents = 'none';
       tarVideo.tabIndex = -1;
     }
@@ -1693,6 +1696,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     srcVideo.addEventListener('timeupdate', syncTime);
+
+    if (isMainCarouselSlide) {
+      const togglePlay = () => {
+        if (srcVideo.paused) {
+          safePlay(srcVideo);
+        } else {
+          srcVideo.pause();
+        }
+      };
+      srcVideo.addEventListener('click', togglePlay);
+      srcVideo.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          togglePlay();
+        }
+      });
+    }
 
     if (isVersatileSlide) {
       const togglePlay = () => {
