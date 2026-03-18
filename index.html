@@ -86,6 +86,9 @@ body {
   width: 100%;
   height: auto;
   display: block;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .prompt-label {
@@ -1567,8 +1570,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const enforceMobilePlaybackFlags = (video) => {
+    if (!video) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.setAttribute('muted', '');
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+  };
+
   const safePlay = (video) => {
     if (!video) return;
+    enforceMobilePlaybackFlags(video);
     maybeApplyMobileSource(video);
     const p = video.play();
     if (p !== undefined) p.catch(() => {});
