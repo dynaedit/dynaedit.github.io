@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="TODO: Add project description">
-  <meta name="keywords" content="video editing, inversion-free, TODO">
+  <meta name="description" content="DynaEdit: Versatile Editing of Video Content, Actions, and Dynamics without Training.">
+  <meta name="keywords" content="video editing, inversion-free, flow models, DynaEdit">
   <title>Versatile Editing of Video Content, Actions, and Dynamics without Training</title>
 
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro|Caveat:wght@400;700" rel="stylesheet">
@@ -2046,47 +2046,59 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   if ('IntersectionObserver' in window) {
+    const groupVisibleCount = new Map();
+    const targetVisible = new Map();
+
+    const getGroupRoot = (video) => {
+      const comparisonRoot = video.closest('.comparison-carousel-slide');
+      if (comparisonRoot) return comparisonRoot;
+      const motivationRoot = video.closest('.motivation-sync-row');
+      if (motivationRoot) return motivationRoot;
+      const syncRoot = video.closest('.sync-pair');
+      if (syncRoot) return syncRoot;
+      return null;
+    };
+
+    const getGroupLeader = (groupRoot) => {
+      if (!groupRoot) return null;
+      if (groupRoot.classList.contains('comparison-carousel-slide')) return groupRoot.querySelector('video');
+      if (groupRoot.classList.contains('motivation-sync-row')) return groupRoot.querySelector('video');
+      return groupRoot.querySelector('video[data-role="src"]');
+    };
+
+    const updateGroupPlayback = (groupRoot) => {
+      const leader = getGroupLeader(groupRoot);
+      if (!leader) return;
+      const visibleCount = groupVisibleCount.get(groupRoot) || 0;
+      if (visibleCount > 0) {
+        if (groupRoot.classList.contains('comparison-carousel-slide')) {
+          ensureComparisonVideoLoaded(leader);
+        }
+        safePlay(leader);
+      } else {
+        leader.pause();
+      }
+    };
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        const target = entry.target;
-        const inView = entry.isIntersecting && entry.intersectionRatio >= 0.45;
+        const video = entry.target;
+        const groupRoot = getGroupRoot(video);
+        if (!groupRoot) return;
 
-        if (target.classList.contains('comparison-carousel-slide')) {
-          const leader = target.querySelector('video');
-          if (!leader) return;
-          ensureComparisonVideoLoaded(leader);
-          if (inView) {
-            safePlay(leader);
-          } else {
-            leader.pause();
-          }
-          return;
-        }
+        const prevVisible = targetVisible.get(video) || false;
+        const isVisibleNow = entry.isIntersecting && entry.intersectionRatio >= 0.08;
+        if (prevVisible === isVisibleNow) return;
 
-        if (target.classList.contains('motivation-sync-row')) {
-          const leader = target.querySelector('video');
-          if (!leader) return;
-          if (inView) {
-            safePlay(leader);
-          } else {
-            leader.pause();
-          }
-          return;
-        }
-
-        if (target.classList.contains('sync-pair')) {
-          const leader = target.querySelector('video[data-role="src"]');
-          if (!leader) return;
-          if (inView) {
-            safePlay(leader);
-          } else {
-            leader.pause();
-          }
-        }
+        targetVisible.set(video, isVisibleNow);
+        const prevCount = groupVisibleCount.get(groupRoot) || 0;
+        const nextCount = isVisibleNow ? prevCount + 1 : Math.max(0, prevCount - 1);
+        groupVisibleCount.set(groupRoot, nextCount);
+        updateGroupPlayback(groupRoot);
       });
-    }, { threshold: [0.0, 0.45, 0.8] });
+    }, { threshold: [0.0, 0.08, 0.2, 0.4], rootMargin: '0px 0px -8% 0px' });
 
-    document.querySelectorAll('.sync-pair, .comparison-carousel-slide, .motivation-sync-row').forEach((node) => observer.observe(node));
+    document.querySelectorAll('.sync-pair video, .comparison-carousel-slide video, .motivation-sync-row video').forEach((video) => observer.observe(video));
   }
 
   showSlide(0);
