@@ -1591,6 +1591,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const shouldUseMobileLowRes = () =>
     enableMobileLowRes && window.matchMedia(`(max-width: ${mobileLowResMaxWidth}px)`).matches;
 
+  const isNarrowView = () => window.matchMedia(`(max-width: ${mobileLowResMaxWidth}px)`).matches;
+
   const maybeApplyMobileSource = (video) => {
     if (!video || !shouldUseMobileLowRes()) return;
     if (video.dataset.mobileApplied === '1') return;
@@ -1630,6 +1632,36 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       source.dataset.src = mobileSrc;
     }
+    video.load();
+  };
+
+  const ensureVideoLoaded = (video) => {
+    if (!video) return;
+    maybeApplyMobileSource(video);
+    const source = video.querySelector('source');
+    if (!source) return;
+    if (source.getAttribute('src')) return;
+
+    const savedSrc = source.dataset.savedSrc || '';
+    const lazySrc = source.dataset.src || '';
+    const originalSrc = source.dataset.originalSrc || '';
+    const nextSrc = savedSrc || lazySrc || originalSrc;
+    if (!nextSrc) return;
+
+    source.setAttribute('src', nextSrc);
+    video.load();
+  };
+
+  const unloadVideoElement = (video) => {
+    if (!video) return;
+    const source = video.querySelector('source');
+    if (!source) return;
+
+    const currentSrc = source.getAttribute('src');
+    if (!currentSrc) return;
+
+    source.dataset.savedSrc = currentSrc;
+    source.removeAttribute('src');
     video.load();
   };
 
@@ -1840,26 +1872,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let cleanupActiveCompSync = null;
 
   const ensureComparisonVideoLoaded = (video) => {
-    maybeApplyMobileSource(video);
-    const source = video.querySelector('source');
-    if (!source) return;
-    const hasSrc = !!source.getAttribute('src');
-    const lazySrc = source.dataset.src || '';
-    if (!hasSrc && lazySrc) {
-      source.setAttribute('src', lazySrc);
-      video.load();
-    }
+    ensureVideoLoaded(video);
   };
 
   const unloadComparisonVideo = (video) => {
-    const source = video.querySelector('source');
-    if (!source) return;
-    const currentSrc = source.getAttribute('src');
-    if (currentSrc) {
-      source.dataset.src = currentSrc;
-      source.removeAttribute('src');
-      video.load();
-    }
+    unloadVideoElement(video);
   };
 
   if (isSafari) {
@@ -2144,14 +2161,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateGroupPlayback = (groupRoot) => {
       const leader = getGroupLeader(groupRoot);
       if (!leader) return;
+      const groupVideos = Array.from(groupRoot.querySelectorAll('video'));
       const visibleCount = groupVisibleCount.get(groupRoot) || 0;
       if (visibleCount > 0) {
-        if (groupRoot.classList.contains('comparison-carousel-slide')) {
-          ensureComparisonVideoLoaded(leader);
-        }
+        groupVideos.forEach((video) => ensureVideoLoaded(video));
         safePlay(leader);
       } else {
-        leader.pause();
+        if (isNarrowView()) {
+          groupVideos.forEach((video) => {
+            video.pause();
+            video.currentTime = 0;
+            unloadVideoElement(video);
+          });
+        } else {
+          leader.pause();
+        }
       }
     };
 
