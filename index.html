@@ -1594,8 +1594,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const shouldUseMobileLowRes = () =>
     enableMobileLowRes && window.matchMedia(`(max-width: ${mobileLowResMaxWidth}px)`).matches;
 
-  const isNarrowView = () => window.matchMedia(`(max-width: ${mobileLowResMaxWidth}px)`).matches;
-
   const maybeApplyMobileSource = (video) => {
     if (!video || !shouldUseMobileLowRes()) return;
     if (video.dataset.mobileApplied === '1') return;
@@ -2170,15 +2168,11 @@ document.addEventListener('DOMContentLoaded', () => {
         groupVideos.forEach((video) => ensureVideoLoaded(video));
         safePlay(leader);
       } else {
-        if (isNarrowView()) {
-          groupVideos.forEach((video) => {
-            video.pause();
-            video.currentTime = 0;
-            unloadVideoElement(video);
-          });
-        } else {
-          leader.pause();
-        }
+        groupVideos.forEach((video) => {
+          video.pause();
+          video.currentTime = 0;
+          unloadVideoElement(video);
+        });
       }
     };
 
