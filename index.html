@@ -1742,7 +1742,6 @@ document.addEventListener('DOMContentLoaded', () => {
       ensureTarPlaying();
     });
 
-
     if (isMainCarouselSlide) {
       const togglePlay = () => {
         if (srcVideo.paused) {
@@ -1799,15 +1798,6 @@ document.addEventListener('DOMContentLoaded', () => {
       srcVideo.pause();
       tarVideo.pause();
     });
-
-    if (!isMainCarouselSlide) {
-      tarVideo.addEventListener('timeupdate', () => {
-        if (!seekingSrc && !srcVideo.paused && srcVideo.readyState >= 1 && tarVideo.readyState >= 1) {
-          const diff = srcVideo.currentTime - tarVideo.currentTime;
-          if (diff < -syncThreshold) tarVideo.currentTime = srcVideo.currentTime;
-        }
-      });
-    }
 
     applyPlaybackRate(srcVideo);
     applyPlaybackRate(tarVideo);
@@ -1975,9 +1965,6 @@ document.addEventListener('DOMContentLoaded', () => {
     addListener(leader, 'pause', () => syncFollowersToLeader(false));
     addListener(leader, 'seeking', () => syncFollowersToLeader(false));
     addListener(leader, 'seeked', () => syncFollowersToLeader(!leader.paused));
-    addListener(leader, 'timeupdate', () => {
-      if (!leader.paused) syncFollowersToLeader(true);
-    });
 
     const togglePlay = () => {
       if (leader.paused) {
@@ -2057,9 +2044,6 @@ document.addEventListener('DOMContentLoaded', () => {
     addListener(leader, 'pause', () => syncFollowersToLeader(false));
     addListener(leader, 'seeking', () => syncFollowersToLeader(false));
     addListener(leader, 'seeked', () => syncFollowersToLeader(!leader.paused));
-    addListener(leader, 'timeupdate', () => {
-      if (!leader.paused) syncFollowersToLeader(true);
-    });
 
     const togglePlay = () => {
       ensureComparisonVideoLoaded(leader);
